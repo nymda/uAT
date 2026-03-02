@@ -1,0 +1,13 @@
+{
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "never",
+        "source.fixAll": "never"
+    },
+    "[go]": {
+        "editor.formatOnSave": false,
+        "editor.defaultFormatter": null
+    },
+    "files.trimTrailingWhitespace": false
+}
