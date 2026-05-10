@@ -112,21 +112,13 @@ func modemInfo(port serial.Port, c chan string) {
 
 func modemAwaitCall(port serial.Port, c chan string) {
 	c <- "Awaiting call..."
-	ringCounter := 0;
 	for {
 		response, err := modemRead(port)
 		if err != nil {
 			c <- "Error reading from modem: " + err.Error()
 			continue
 		}
-		if bytes.Contains([]byte(response), []byte("RING")) {
-			c <- "Ringing..."
-			ringCounter += 1;
-			if(ringCounter >= 3){
-				c <- "Answering call..."
-				return;
-			}
-		}
+		c <- response;
 	}
 }
 
