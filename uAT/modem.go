@@ -110,6 +110,26 @@ func modemInfo(port serial.Port, c chan string) {
 	}
 }
 
+func modemAwaitCall(port serial.Port, c chan string) {
+	c <- "Awaiting call..."
+	ringCounter := 0;
+	for {
+		response, err := modemRead(port)
+		if err != nil {
+			c <- "Error reading from modem: " + err.Error()
+			continue
+		}
+		if bytes.Contains([]byte(response), []byte("RING")) {
+			c <- "Ringing..."
+			ringCounter += 1;
+			if(ringCounter >= 3){
+				c <- "Answering call..."
+				return;
+			}
+		}
+	}
+}
+
 func modemLoop(portName string, baud int, c chan string) {
 	mode := &serial.Mode{BaudRate: baud}
 	port, err := serial.Open(portName, mode)
@@ -143,6 +163,9 @@ func modemLoop(portName string, baud int, c chan string) {
 					message := string(bytes.Join(subcommands[2:], []byte(" ")))
 					c <- modemSms(port, number, message)
 				}
+
+			case "AWAIT_CALL":
+				modemAwaitCall(port, c)
 
 			default:
 				c <- fmt.Sprintf("Unknown command: %s", command)
