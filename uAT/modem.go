@@ -42,6 +42,8 @@ func modemSms(port serial.Port, number string, message string) string {
 	} else {
 		return fmt.Sprintf("Failed to send SMS: %s", strings.ReplaceAll(strings.ReplaceAll(read, "\r", ""), "\n", ""))
 	}
+
+	modemRead(port) //clear any remaining data
 }
 
 func modemCallAndResponse(port serial.Port, command string, stripOK bool) (string, bool) {
@@ -64,6 +66,8 @@ func modemCallAndResponse(port serial.Port, command string, stripOK bool) (strin
 	readBytes = bytes.ReplaceAll(readBytes, []byte("\n"), []byte("")) 
 	readBytes = bytes.TrimSpace(readBytes)
 	read = string(readBytes)
+
+	modemRead(port) //clear any remaining data
 	return read, true
 }
 
@@ -75,6 +79,8 @@ func modemTest(port serial.Port, c chan string) {
 	} else {
 		c <- "TEST_FAIL"
 	}
+
+	modemRead(port) //clear any remaining data
 }
 
 func modemInfo(port serial.Port, c chan string) {
@@ -108,6 +114,8 @@ func modemInfo(port serial.Port, c chan string) {
 	} else {
 		c <- "Error getting signal strength"
 	}
+
+	modemRead(port) //clear any remaining data
 }
 
 func modemAwaitCall(port serial.Port, c chan string) {
@@ -126,7 +134,8 @@ func modemAwaitCall(port serial.Port, c chan string) {
 				port.Write([]byte("ATA\r"))
 				time.Sleep(500 * time.Millisecond)
 				port.Write([]byte("ATA\r"))
-				
+
+				modemRead(port) //clear any remaining data
 				return;
 			}
 		} 
