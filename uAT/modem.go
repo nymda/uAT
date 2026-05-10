@@ -34,16 +34,17 @@ func modemSms(port serial.Port, number string, message string) string {
 	read, err := modemRead(port)
 
 	if err != nil {
+		modemRead(port) //clear any remaining data
 		return "Modem error: " + err.Error()
 	}
 
 	if strings.Contains(read, "OK"){
+		modemRead(port) //clear any remaining data
 		return fmt.Sprintf("Sent SMS to [%s]", number)
 	} else {
+		modemRead(port) //clear any remaining data
 		return fmt.Sprintf("Failed to send SMS: %s", strings.ReplaceAll(strings.ReplaceAll(read, "\r", ""), "\n", ""))
 	}
-
-	modemRead(port) //clear any remaining data
 }
 
 func modemCallAndResponse(port serial.Port, command string, stripOK bool) (string, bool) {
@@ -68,6 +69,7 @@ func modemCallAndResponse(port serial.Port, command string, stripOK bool) (strin
 	read = string(readBytes)
 
 	modemRead(port) //clear any remaining data
+
 	return read, true
 }
 
