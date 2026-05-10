@@ -111,6 +111,11 @@ func modemInfo(port serial.Port, c chan string) {
 }
 
 func modemAwaitCall(port serial.Port, c chan string) {
+	port.Write([]byte("AT+CLIP=1\r"))
+	time.Sleep(100 * time.Millisecond)
+	port.Write([]byte("AT+CRC=1\r"))
+	time.Sleep(100 * time.Millisecond)
+	port.Write([]byte("AT+CR=1\r"))
 	c <- "Awaiting call..."
 	for {
 		response, err := modemRead(port)
