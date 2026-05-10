@@ -122,14 +122,14 @@ func modemInfo(port serial.Port, c chan string) {
 
 func modemAwaitCall(port serial.Port, c chan string) {
 	port.Write([]byte("AT+CLCC=1\r"))
-	c <- "Awaiting call..."
 	for {
 		time.Sleep(500 * time.Millisecond)
 		if response, ok := modemCallAndResponse(port, "AT+CPAS", true); ok {
-			c <- response
 			if(bytes.Contains([]byte(response), []byte("CPAS: 3"))){
-				c <- "Incoming call detected!"
+				c <- "Answering incoming call!"
 				
+				modemRead(port) //clear any data before sending ATA commands
+
 				time.Sleep(500 * time.Millisecond)
 				port.Write([]byte("ATA\r"))
 				time.Sleep(500 * time.Millisecond)
@@ -138,7 +138,12 @@ func modemAwaitCall(port serial.Port, c chan string) {
 				port.Write([]byte("ATA\r"))
 
 				modemRead(port) //clear any remaining data
-				return;
+			}
+			elif(bytes.Contains([]byte(response), []byte("CPAS: 4"))){
+				c <- "Call is currently in progress..."
+			}
+			else{
+				c <- "Awaiting call..."
 			}
 		} 
 	}
