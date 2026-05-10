@@ -114,7 +114,9 @@ func modemAwaitCall(port serial.Port, c chan string) {
 	port.Write([]byte("AT+CLCC=1\r"))
 	c <- "Awaiting call..."
 	for {
+		time.Sleep(500 * time.Millisecond)
 		if response, ok := modemCallAndResponse(port, "AT+CPAS", true); ok {
+			c <- response
 			if(bytes.Contains([]byte(response), []byte("CPAS: 3"))){
 				c <- "Incoming call detected!"
 				port.Write([]byte("ATA\r"))
