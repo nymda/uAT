@@ -111,19 +111,15 @@ func modemInfo(port serial.Port, c chan string) {
 }
 
 func modemAwaitCall(port serial.Port, c chan string) {
-	port.Write([]byte("AT+CLIP=1\r"))
-	time.Sleep(100 * time.Millisecond)
-	port.Write([]byte("AT+CRC=1\r"))
-	time.Sleep(100 * time.Millisecond)
-	port.Write([]byte("AT+CR=1\r"))
+	port.Write([]byte("AT+CLCC=1\r"))
 	c <- "Awaiting call..."
 	for {
-		response, err := modemRead(port)
-		if err != nil {
-			c <- "Error reading from modem: " + err.Error()
-			continue
-		}
-		c <- response;
+		if response, ok := modemCallAndResponse(port, "AT+CPAS", true); ok {
+			if(bytes.Contains([]byte(response), []byte("CPAS: 3"))){
+				c <- "Incoming call detected!"
+				port.Write([]byte("ATA\r"))
+			}
+		} 
 	}
 }
 
