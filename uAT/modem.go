@@ -138,11 +138,9 @@ func modemAwaitCall(port serial.Port, c chan string) {
 				port.Write([]byte("ATA\r"))
 
 				modemRead(port) //clear any remaining data
-			}
-			elif(bytes.Contains([]byte(response), []byte("CPAS: 4"))){
+			} else if(bytes.Contains([]byte(response), []byte("CPAS: 4"))){
 				c <- "Call is currently in progress..."
-			}
-			else{
+			} else{
 				c <- "Awaiting call..."
 			}
 		} 
